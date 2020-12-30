@@ -50,10 +50,9 @@ def pickle_2_img_single(data_file):
             # img = FFT.dctn(img, norm='ortho')
             # img = img[:16, :16]
             img_b = data[i]['img_b'][j]
-            try:
-                img_patch = get_patch_1d(img_b, all_indexes, 16, 8)
-            except:
-                print(i, j)
+
+            img_patch = get_patch_1d(img_b, all_indexes, 16, 8)
+
             label = int(data[i]['labels'][j])
 
             if label == 7:
@@ -70,45 +69,10 @@ def pickle_2_img_single(data_file):
     return total_x1, total_y
 
 
-def pickle_2_img_double(data_file):
-    '''load data from pkl'''
-    if not os.path.exists(data_file):
-        print('file {0} not exists'.format(data_file))
-        exit()
-    with open(data_file, 'rb') as f:
-        data = pickle.load(f)
-    total_x1, total_y = [], []
-    for i in range(len(data)):
-        x1 = []
-        #x2 = []
-        yl = []
-        print(len(data[i]['img']))
-        for j in range(len(data[i]['labels'])):
-
-            img = data[i]['img'][j]
-            #img = FFT.dctn(img, norm='ortho')
-            #img = FFT.dctn(img)
-            #img = img[:32, :32]
-            #img_neu = data[i]['img_neu'][j]
-            #img_neu = FFT.dctn(img_neu, norm='ortho')
-            #img_neu = img_neu[:32,:32]
-            #diff = img-img_neu
-            label = int(data[i]['labels'][j])
-
-            if label == 7:
-                label = 2
-
-            #label = dense_to_one_hot(label, 6)
-
-            x1.append(img)
-            yl.append(label)
-
-        total_x1.append(x1)
-        total_y.append(yl)
-
-    return total_x1, total_y
-
 if __name__ == "__main__":
     data = pickle_2_img_single("D:/chenchuyang/learning/sparse_coding/patch_mnn/pkl/ckp_2sizeimg.pkl")
-    show_img(data[0]['img'][0])
-    show_img(data[0]['img_b'][0])
+    print(type(data))
+    print(type(data[0]))
+    print(len(data))
+    print(len(data[0]))
+

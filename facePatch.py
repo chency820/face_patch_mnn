@@ -108,26 +108,15 @@ def get_SqrMouth(img, X, Y, size):
     return patch
 
 
+# old version of eye, mouth patch
 def get_FacePatch(img, X, Y):
     leye_patch = get_SqrLeye(img, X, Y, 80)
     reye_patch = get_SqrReye(img, X, Y, 80)
     mouth_patch = get_SqrMouth(img, X, Y, 104)
     return leye_patch, reye_patch, mouth_patch
 
-# directly crop only
-# def get_eye_patch(img, h, w):
-#     patch = np.zeros((h, w), dtype="uint8")
-#     tlx, tly = 0, 0
-#     brx, bry = w, h
-#     patch[0:h, 0:w] = img[tly:bry, tlx:brx]
-#     return patch
-#
-# def get_mouth_patch(img):
-#     patch = np.zeros((40, 80), dtype="uint8")
-#     patch[0:40, 0:80] = img[80:120, 24:104]
-#     return patch
 
-
+# get all image blocks returns 1d tensor
 def get_all_lm_blocks(img, X, Y):
     patches = []
     for x, y in zip(X, Y):
@@ -137,16 +126,17 @@ def get_all_lm_blocks(img, X, Y):
         patch_1d = np.array(patches).flatten()
     return patch_1d
 
+
+# get one block by the landmark position
 def get_landmark_block(img, x, y, block_size=8):
     half = block_size / 2
     tlx, tly = int(x - half), int(y - half)
     brx, bry = int(x + half), int(y + half)
     patch = np.zeros((block_size, block_size), dtype="uint8")
-    if tly == 123:
-        show_img(img, 'oversize')
     print(block_size, tly, bry, tlx, brx)
     patch[0:block_size, 0:block_size] = img[tly:bry, tlx:brx]
     return patch
+
 
 def get_landmark_indexes(all_indexes, lmx, lmy):
     x_lms_list = list()
@@ -156,15 +146,12 @@ def get_landmark_indexes(all_indexes, lmx, lmy):
         y_lms_list.append(lmy[index_y])
     return x_lms_list, y_lms_list
 
+
 def get_patch_1d(img, indexes_list, block_size, crop_size):
     lmx, lmy = get_landmarks(img, detector, predictor)
     x_lms_list, y_lms_list = get_landmark_indexes(indexes_list, lmx, lmy)
     patch_1d_tensor = get_all_lm_blocks(img, x_lms_list, y_lms_list)
     return patch_1d_tensor
-
-def get_outface_area():
-    dlib.get_face_chip()
-    dlib.get_face_chips()
 
 
 def rect_to_bb(rect):
@@ -178,6 +165,7 @@ def rect_to_bb(rect):
     # return a tuple of (x, y, w, h)
     return x, y, w, h
 
+# crop by the rectangle and resize
 def crop_and_resize(img):
     rects = detector(img, 0)
     x, y, w, h = rect_to_bb(rects[0])
@@ -188,6 +176,8 @@ def crop_and_resize(img):
     im_rescale = cv2.resize(patch, (128, 128))
     return im_rescale
 
+
+# for image show
 def show_landmarks_sqrs_img(X, Y, img, xl_select, yl_select):
     plt.scatter(X, Y)
     center_reye_x = int(np.mean(X[42:48]))
@@ -211,6 +201,16 @@ def show_landmarks_sqrs_img(X, Y, img, xl_select, yl_select):
     plt.title("landmarks")
     plt.show()
 
+
+def show_landmarks_and_rect(img):
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+    rects = detector(img, 0)
+    x, y, w, h = rect_to_bb(rects[0])
+    rect = plt.Rectangle((x, y), w, h, fill=False, edgecolor = 'red',linewidth=1)
+    plt.imshow(img)
+    ax.add_patch(rect)
+    plt.show()
 
 if __name__ == "__main__":
     def pre_show():
@@ -275,60 +275,62 @@ if __name__ == "__main__":
         print(patch_tensor.shape)
 
 
-    rects = detector(imgcv_gray, 0)
-    print(rects[0])
-    x, y, w, h = rect_to_bb(rects[0])
-    # Display the image
-    plt.imshow(imgcv_gray, 'gray')
+        rects = detector(imgcv_gray, 0)
+        print(rects[0])
+        x, y, w, h = rect_to_bb(rects[0])
+        # Display the image
+        plt.imshow(imgcv_gray, 'gray')
 
-    # Get the current reference
-    ax = plt.gca()
+        # Get the current reference
+        ax = plt.gca()
 
-    # Create a Rectangle patch
-    rect = patches.Rectangle((x, y), w, h, linewidth=1, edgecolor='r', facecolor='none')
+        # Create a Rectangle patch
+        rect = patches.Rectangle((x, y), w, h, linewidth=1, edgecolor='r', facecolor='none')
 
-    # Add the patch to the Axes
-    ax.add_patch(rect)
-    plt.show()
+        # Add the patch to the Axes
+        ax.add_patch(rect)
+        plt.show()
 
-    imr = crop_and_resize(imgcv_gray)
-    lmx, lmy = get_landmarks(imr, detector, predictor)
-
-
-
-    lmx_select, lmy_select = get_landmark_indexes(all_indexes, lmx, lmy)
-    show_img(imr)
-    show_landmarks_sqrs_img(lmx, lmy, imr, lmx_select, lmy_select)
+        imr = crop_and_resize(imgcv_gray)
+        lmx, lmy = get_landmarks(imr, detector, predictor)
 
 
-    im_static = np.abs(FFT.dctn(imr).flatten())
-    im_big = np.abs(FFT.dctn(imr).flatten())
-    im_big_list = list(im_big)
-    print(type(im_static))
-    im_static_list = list(im_static)
 
-    img_high1 = np.abs(FFT.dctn(imr)[32:128, :32].flatten())
-    img_high2 = np.abs(FFT.dctn(imr)[:32, 32:128].flatten())
-    img_high3 = np.abs(FFT.dctn(imr)[32:,32:].flatten())
-    l = list(img_high1) + list(img_high2) + list(img_high3)
-
-    x = l
-    x = pd.Series(x)
-
-    # histogram on linear scale
-    plt.subplot(211)
-    hist, bins, _ = plt.hist(x, bins=8)
-
-    # histogram on log scale.
-    # Use non-equal bin sizes, such that they look equal on log scale.
-    logbins = np.logspace(np.log10(bins[0]),np.log10(bins[-1]),len(bins))
-    plt.subplot(212)
-    plt.hist(x, bins=logbins)
-    plt.xscale('log')
-    plt.show()
+        lmx_select, lmy_select = get_landmark_indexes(all_indexes, lmx, lmy)
+        show_img(imr)
+        show_landmarks_sqrs_img(lmx, lmy, imr, lmx_select, lmy_select)
 
 
-    # Normalization
+        im_static = np.abs(FFT.dctn(imr).flatten())
+        im_big = np.abs(FFT.dctn(imr).flatten())
+        im_big_list = list(im_big)
+        print(type(im_static))
+        im_static_list = list(im_static)
 
+        img_high1 = np.abs(FFT.dctn(imr)[32:128, :32].flatten())
+        img_high2 = np.abs(FFT.dctn(imr)[:32, 32:128].flatten())
+        img_high3 = np.abs(FFT.dctn(imr)[32:,32:].flatten())
+        l = list(img_high1) + list(img_high2) + list(img_high3)
+
+        x = l
+        x = pd.Series(x)
+
+        # histogram on linear scale
+        plt.subplot(211)
+        hist, bins, _ = plt.hist(x, bins=8)
+
+        # histogram on log scale.
+        # Use non-equal bin sizes, such that they look equal on log scale.
+        logbins = np.logspace(np.log10(bins[0]),np.log10(bins[-1]),len(bins))
+        plt.subplot(212)
+        plt.hist(x, bins=logbins)
+        plt.xscale('log')
+        plt.show()
+
+
+        # Normalization
+
+
+show_landmarks_and_rect(imgcv_gray)
 
 
