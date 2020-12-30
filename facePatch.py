@@ -203,6 +203,7 @@ def show_landmarks_sqrs_img(X, Y, img, xl_select, yl_select):
 
 
 def show_landmarks_and_rect(img):
+    lmx, lmy = get_landmarks(img, detector, predictor)
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
     rects = detector(img, 0)
@@ -210,6 +211,7 @@ def show_landmarks_and_rect(img):
     rect = plt.Rectangle((x, y), w, h, fill=False, edgecolor = 'red',linewidth=1)
     plt.imshow(img)
     ax.add_patch(rect)
+    plt.scatter(lmx, lmy)
     plt.show()
 
 if __name__ == "__main__":
@@ -330,6 +332,8 @@ if __name__ == "__main__":
 
         # Normalization
 
+
+# try to figure out the size
 
 show_landmarks_and_rect(imgcv_gray)
 

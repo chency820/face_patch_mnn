@@ -3,14 +3,8 @@ import pickle
 import cv2
 import numpy as np
 import scipy.fftpack as FFT
-from facePatch import get_patch_1d
-
+from facePatch import get_patch_1d, show_img
 import matplotlib.pyplot as plt
-
-def show_img(img, title='___'):
-    plt.imshow(img, cmap='gray')
-    plt.title(title)
-    plt.show()
 
 eye_indexes = list(range(36, 48))
 mouth_indexes = list(range(48, 60))
@@ -47,10 +41,9 @@ def pickle_2_img_single(data_file):
         for j in range(len(data[i]['labels'])):
 
             img = data[i]['img'][j]
-            # img = FFT.dctn(img, norm='ortho')
-            # img = img[:16, :16]
             img_b = data[i]['img_b'][j]
-
+            show_img(img)
+            show_img(img_b)
             img_patch = get_patch_1d(img_b, all_indexes, 16, 8)
 
             label = int(data[i]['labels'][j])
@@ -70,9 +63,5 @@ def pickle_2_img_single(data_file):
 
 
 if __name__ == "__main__":
-    data = pickle_2_img_single("D:/chenchuyang/learning/sparse_coding/patch_mnn/pkl/ckp_2sizeimg.pkl")
-    print(type(data))
-    print(type(data[0]))
-    print(len(data))
-    print(len(data[0]))
+    img, label = pickle_2_img_single("D:/chenchuyang/learning/sparse_coding/patch_mnn/pkl/ckp_2sizeimg.pkl")
 
