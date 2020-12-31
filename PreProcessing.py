@@ -39,11 +39,11 @@ def pickle_2_img_single(data_file):
         yl = []
         print(len(data[i]['img']))
         for j in range(len(data[i]['labels'])):
-
             img = data[i]['img'][j]
             img_b = data[i]['img_b'][j]
             show_img(img)
             show_img(img_b)
+            print(i, j)
             img_patch = get_patch_1d(img_b, all_indexes, 16, 8)
 
             label = int(data[i]['labels'][j])

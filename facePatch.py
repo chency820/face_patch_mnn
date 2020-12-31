@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import dlib
 import scipy.fftpack as FFT
+import os
 import pandas as pd
 
 
@@ -335,6 +336,14 @@ if __name__ == "__main__":
 
 # try to figure out the size
 
-show_landmarks_and_rect(imgcv_gray)
+    #show_landmarks_and_rect(imgcv_gray)
+    root_path = r"D:\chenchuyang\learning\FNN\fera\cohn-kanade-images\cohn-kanade-images\S124\007\\"
+    for path in os.listdir(root_path):
+        print(path)
+        if path[-3:] == 'png':
+            imgcv = cv2.imread(root_path + path, cv2.IMREAD_GRAYSCALE)
+            print(type(imgcv))
+            show_img(imgcv)
+            show_landmarks_and_rect(imgcv)
 
 
