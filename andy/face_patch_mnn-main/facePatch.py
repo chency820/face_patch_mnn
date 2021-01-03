@@ -347,3 +347,5 @@ if __name__ == "__main__":
             show_landmarks_and_rect(imgcv)
 
 
+# try to figure out the ratio
+
