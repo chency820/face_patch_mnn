@@ -621,10 +621,10 @@ def __cropImg(img, shape=None, LM=False, Patches=False, regularize=False, trg_si
         bbrx=bbrx-Mpx
         bbry=bbry-Mpy
         btly=btly-Mpy
-        print('coordinate adjustment')
-        print(Mpx, Mpy)
-        Xa=np.round((lms_x-btlx)*trg_size/nw)
-        Ya=np.round((lms_y-btly)*trg_size/nh)
+        #print('coordinate adjustment')
+        #print(Mpx, Mpy)
+        Xa = np.round((lms_x-btlx)*trg_size/nw)
+        Ya = np.round((lms_y-btly)*trg_size/nh)
         
         #few=open(eyelog,'a')
         #few.write('%lf %lf\n'%((np.mean(Xa[36:42])+np.mean(Xa[42:48]))/2,(np.mean(Ya[36:42])+np.mean(Ya[42:48]))/2))
@@ -1727,4 +1727,31 @@ def crop_face_only(img, shape=None, trg_size=128):
 
     else:
         im_rescale=cv2.resize(img, (trg_size, trg_size))
+        return im_rescale
+
+
+# crop larger face for a bigger ratio
+def crop_face_for_patch(img, shape=None, trg_size=128, ratio=0.2):
+    if not shape == None:
+        nLM = shape.num_parts
+        lms_x = np.asarray([shape.part(i).x for i in range(0, nLM)])
+        lms_y = np.asarray([shape.part(i).y for i in range(0, nLM)])
+        tlx = float(min(lms_x[17:67]))           # top left x
+        tly = float(min(lms_y[17:67]))           # top left y
+        brx = float(max(lms_x[17:67]))           # bottom right x
+        bry = float((lms_y[57] + lms_y[8]) / 2)  # bottom right y
+        ww = float(brx - tlx)
+        hh = float(bry - tly)
+
+        tlx = round(tlx)
+        tly = round(tly)
+        brx = round(brx)
+        bry = round(bry)
+
+        imcrop = img[tly:bry, tlx:brx]
+        im_rescale = cv2.resize(imcrop, (trg_size, trg_size))
+        return im_rescale
+
+    else:
+        im_rescale = cv2.resize(img, (trg_size, trg_size))
         return im_rescale
