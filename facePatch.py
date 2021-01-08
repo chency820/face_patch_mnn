@@ -336,9 +336,14 @@ def pre_show():
         # Normalization
 
 if __name__ == "__main__":
+    show_img(imgcv_gray, '001')
+    crop_img = crop_and_resize(imgcv_gray)
 
-
-
+    crop_img2 = fpu.crop_face_only(imgcv_gray)
+    crop_img3 = fpu.crop_face_for_patch(imgcv_gray)
+    show_img(crop_img, '2')
+    show_img(crop_img2, '3')
+    show_img(crop_img3, '4')
 # try to figure out the size
 
     #show_landmarks_and_rect(imgcv_gray)
