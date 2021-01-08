@@ -8,19 +8,21 @@ import os
 import pandas as pd
 
 
-def show_img(img, title='___'):
+def show_img(img, title='default'):
     plt.imshow(img, cmap='gray')
     plt.title(title)
     plt.show()
 
 
 imgpath = r"D:\chenchuyang\learning\FNN\fera\cohn-kanade-images\cohn-kanade-images\S010\006\S010_006_00000001.png"
-imgcv_gray = cv2.imread(imgpath, cv2.IMREAD_GRAYSCALE)
+#imgcv_gray = cv2.imread(imgpath, cv2.IMREAD_GRAYSCALE)
 flag, imgcv_gray = fpu.calibrateImge(imgpath)
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor("./dlibmodel/shape_predictor_68_face_landmarks.dat")
 res = fpu.getLandMarkFeatures_and_ImgPatches(imgcv_gray, withLM=True, withPatches=True)
 
+
+# define the eye and mouth indexes for local feature
 eye_indexes = list(range(36, 48))
 mouth_indexes = list(range(48, 60))
 all_indexes = eye_indexes + mouth_indexes
@@ -48,15 +50,6 @@ def get_landmarks(im, face_detector, shape_predictor):
     lms_x = coords[:, 0]
     lms_y = coords[:, 1]
     return lms_x, lms_y
-
-
-def show_landmarks_and_img(X, Y, img):
-    plt.scatter(X, Y)
-    # cv2.circle(img, (X[36], Y[36]), 16, (255, 0, 0), 1)
-    #cv2.rectangle(img, (X[36]-8, Y[36]-8), (X[36]+8, Y[36]+8), (255, 0, 0))
-    plt.imshow(img, cmap='gray')
-    plt.title("landmarks")
-    plt.show()
 
 
 def get_EyeMouthMiddle(img, X, Y):
@@ -202,6 +195,7 @@ def show_landmarks_sqrs_img(X, Y, img, xl_select, yl_select):
     plt.show()
 
 
+# show the landmarks and the rectangle of the border
 def show_landmarks_and_rect(img):
     lmx, lmy = get_landmarks(img, detector, predictor)
     fig = plt.figure()
@@ -214,8 +208,17 @@ def show_landmarks_and_rect(img):
     plt.scatter(lmx, lmy)
     plt.show()
 
-if __name__ == "__main__":
-    def pre_show():
+
+def show_landmarks_and_img(X, Y, img):
+    plt.scatter(X, Y)
+    # cv2.circle(img, (X[36], Y[36]), 16, (255, 0, 0), 1)
+    #cv2.rectangle(img, (X[36]-8, Y[36]-8), (X[36]+8, Y[36]+8), (255, 0, 0))
+    plt.imshow(img, cmap='gray')
+    plt.title("landmarks")
+    plt.show()
+
+
+def pre_show():
         print(imgcv_gray.shape)
         show_img(imgcv_gray, 'original')
         print('length: ',len(res))
@@ -331,6 +334,9 @@ if __name__ == "__main__":
 
 
         # Normalization
+
+if __name__ == "__main__":
+
 
 
 # try to figure out the size

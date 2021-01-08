@@ -717,7 +717,7 @@ def __RotateTranslate(image, angle, center =None, new_center =None, resample=IM.
     cosine = math.cos(angle)  
     sine = math.sin(angle)  
     c = x-nx*cosine-ny*sine  
-    d =-sine  
+    d = -sine
     e = cosine
     f = y-nx*d-ny*e  
     return image.transform(image.size, IM.AFFINE, (cosine,sine,c,d,e,f), resample=resample)
@@ -1732,6 +1732,7 @@ def crop_face_only(img, shape=None, trg_size=128):
 
 # crop larger face for a bigger ratio
 def crop_face_for_patch(img, shape=None, trg_size=128, ratio=0.2):
+    w, h = img.shape
     if not shape == None:
         nLM = shape.num_parts
         lms_x = np.asarray([shape.part(i).x for i in range(0, nLM)])
@@ -1740,9 +1741,21 @@ def crop_face_for_patch(img, shape=None, trg_size=128, ratio=0.2):
         tly = float(min(lms_y[17:67]))           # top left y
         brx = float(max(lms_x[17:67]))           # bottom right x
         bry = float((lms_y[57] + lms_y[8]) / 2)  # bottom right y
+        # the width and height of the landmark part
         ww = float(brx - tlx)
         hh = float(bry - tly)
-
+        if tlx - ww * ratio < 0:
+            print("tlx")
+        if tly - hh * ratio < 0:
+            print("tly")
+        if brx + ww * ratio > h:
+            print("brx")
+        if bry + hh * ratio > w:
+            print("bry")
+        tlx = tlx - ww * ratio
+        tly = tly - hh * ratio
+        brx = brx + ww * ratio
+        bry = bry + hh * ratio
         tlx = round(tlx)
         tly = round(tly)
         brx = round(brx)
