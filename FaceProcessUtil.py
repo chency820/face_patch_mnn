@@ -55,19 +55,11 @@ LMP2_Dists=[[51,57],[62,66],[49,59],[53,55]]
                       #[54,53],[54,51],[53,51]] not helpful
 '''the order of three points in a triangle should be considered
  by making the outcoming triangle features share bigger variance'''
-#LMP2_triangle=[[4, 5, 48], [12, 11, 54], [62, 66, 48], [62, 66, 54],
-#                           [4, 5, 66], [12, 11, 66], [4, 5, 51], [12, 11, 51],[4, 5, 62], [12, 11, 62]
-#                           , [51, 57, 48], [51, 57, 54], [4, 5, 57], [12, 11, 57]]
+
 LMP2_triangle=[[4, 5, 48], [12, 11, 54], [62, 66, 48], [62, 66, 54],
                            [4, 5, 66], [12, 11, 66], [4, 5, 51], [12, 11, 51],[4, 5, 62], [12, 11, 62]
                            , [51, 57, 48], [51, 57, 54], [4, 5, 57], [12, 11, 57]
                            ,[62,66,12],[62,66,4],[62,66,11],[62,66,5]]
-#LMP2_triangle=[[48, 5, 4], [54, 11, 12], [48, 57, 51], 
-#                           [54, 57, 51], [48, 66, 62], [54, 66, 62],
-#                           [66, 5, 4], [66, 11, 12], [51, 4, 5], [51, 11, 12],
-#                           [62, 5, 4], [62, 11, 12], [57, 5, 4], [57, 11, 12]]
-#LMP2_aug=[[48,51], #not helpful
-#                    [54,51]]
 
 
 detector = dlib.get_frontal_face_detector()
@@ -376,8 +368,8 @@ def __getEDList(X, Y, keyPs):
     '''Return the Euclidean distances list of the keypoints keyPs'''
     ed=[]
     for i in keyPs:
-        ed.append(__getD(X[i[0]],Y[i[0]],
-                         X[i[1]],Y[i[1]]))
+        ed.append(__getD(X[i[0]], Y[i[0]],
+                         X[i[1]], Y[i[1]]))
     return ed
 
 def __getDirectionalXY(X, Y, keyPs):
@@ -763,9 +755,8 @@ def calibrateImge(imgpath):
     return True, imgcv_gray
 
 
-
-### system module
-crop_size=0.7
+# system module
+crop_size = 0.7
 def __getLandMarkFeatures_and_ImgPatches_for_Facelist(img_list, withLM=True, withPatches=True):
     """Input:
     img_list: face image list to be processed.
@@ -810,22 +801,23 @@ Outputs:
             RT.append((rescaleimg, gf, geo_features, pf, eyepatch, foreheadpatch, mouthpatch, innerface))
     return RT
 
+
 def __calibrateImageWithArrayInput(img):
     '''Calibrate the image of the face'''
     if img is None:
         print('Unexpected ERROR: The value input is None. No image was loaded')
         return False, None, None
-    if len(img.shape)==3:
+    if len(img.shape) == 3:
         imgcv_gray=cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    elif len(img.shape)==2:
+    elif len(img.shape) == 2:
         imgcv_gray=img[:]
     else:
         print('ERROR: Unexpected data format.')
         return False, None
     dets = detector(imgcv_gray,1)
     img_face_list=[]
-    rectPoint=[]
-    if len(dets)==0:
+    rectPoint = []
+    if len(dets) == 0:
         print("No face was detected^^^^^^^^^^^^^^")
         return False, img_face_list, rectPoint
     h=imgcv_gray.shape[0]

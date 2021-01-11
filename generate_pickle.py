@@ -21,8 +21,7 @@ all_indexes = eye_indexes + mouth_indexes
 txtPath = './txt/CK+_106_single_309.txt'
 
 #replace your data path of CK+
-data_root_path = 'D:/chenchuyang/learning/FNN/fera/cohn-kanade-images/cohn-kanade-images/'
-
+data_root_path = '/Users/chenchuyang/andy/FNN/fera/cohn-kanade-images/'
 imglist = [[],[],[],[],[],[],[],[],[],[]] #ten fold
 labellist = [[],[],[],[],[],[],[],[],[],[]] #ten fold
 
@@ -90,31 +89,30 @@ for i in range(len(imglist)):
 
         image_path = v
         print('1', image_path)
-        if image_path != "D:/chenchuyang/learning/FNN/fera/cohn-kanade-images/cohn-kanade-images/S129/002/S129_002_0000009.png":
-            flag, img = fpu.calibrateImge(image_path)
-            if flag:
-                    imgr = fpu.getLandMarkFeatures_and_ImgPatches(img, True, False, True)
-                    img_cnr = crop_and_resize(img)
-                    #img_patch = img = get_patch_1d(img, all_indexes, 16, 8)
-                    #lms = get_norm_landmarks(img, detector, predictor)
-            else:
-                print('Unexpected case while calibrating for:'+str(image_path))
-                exit(1)
+        flag, img = fpu.calibrateImge(image_path)
+        if flag:
+            rects = detector(img, 1)
+            shape = predictor(img, rects[0])
+            imgr = fpu.getLandMarkFeatures_and_ImgPatches(img, True, False, True)
+            img_cnr = fpu.crop_face_for_patch(img, shape=shape)
+        else:
+            print('Unexpected case while calibrating for:'+str(image_path))
+            exit(1)
 
-            if imgr[1]:
-                gc = gc + 1
-                img = imgr[0]
-                imgb = img_cnr
+        if imgr[1]:
+            gc = gc + 1
+            img = imgr[0]
+            imgb = img_cnr
 
 
-                print("Get Geometry>>>>>>>>>>>>>>")
-                ckplus_label.append(label)
-                ckplus_img.append(img)
-                ckplus_imgb.append(imgb)
-                # ckplus_lms.append(lms)
-            else:
-                print('No feature detected:' + image_path)
-                exit(1)
+            print("Get Geometry>>>>>>>>>>>>>>")
+            ckplus_label.append(label)
+            ckplus_img.append(img)
+            ckplus_imgb.append(imgb)
+            # ckplus_lms.append(lms)
+        else:
+            print('No feature detected:' + image_path)
+            exit(1)
 
     ckplus['labels']=ckplus_label
     ckplus['img'] = ckplus_img
@@ -122,7 +120,7 @@ for i in range(len(imglist)):
     #ckplus['lms'] = ckplus_lms
     feature_group_of_subject.append(ckplus)
 
-filenametosave='./pkl/ckp_3_img.pkl'
+filenametosave='./pkl/ckp_2size_img.pkl'
 
 with open(filenametosave,'wb') as fin:
     pickle.dump(feature_group_of_subject, fin, 4)

@@ -14,7 +14,7 @@ def show_img(img, title='default'):
     plt.show()
 
 
-imgpath = r"D:\chenchuyang\learning\FNN\fera\cohn-kanade-images\cohn-kanade-images\S010\006\S010_006_00000001.png"
+imgpath = "/Users/chenchuyang/andy/FNN/fera/cohn-kanade-images/S010/002/S010_002_00000014.png"
 #imgcv_gray = cv2.imread(imgpath, cv2.IMREAD_GRAYSCALE)
 flag, imgcv_gray = fpu.calibrateImge(imgpath)
 detector = dlib.get_frontal_face_detector()
@@ -158,7 +158,7 @@ def rect_to_bb(rect):
     # return a tuple of (x, y, w, h)
     return x, y, w, h
 
-# crop by the rectangle and resize
+# crop by the rectangle and resize, discarded
 def crop_and_resize(img):
     rects = detector(img, 0)
     x, y, w, h = rect_to_bb(rects[0])
@@ -337,14 +337,19 @@ def pre_show():
 
 if __name__ == "__main__":
     show_img(imgcv_gray, '001')
-    crop_img = crop_and_resize(imgcv_gray)
+    rects = detector(imgcv_gray, 1)
+    shape = predictor(imgcv_gray, rects[0])
+    crop_rect = crop_and_resize(imgcv_gray)
+    crop_only = fpu.crop_face_only(imgcv_gray, shape=shape)
+    crop_only_bigger = fpu.crop_face_for_patch(imgcv_gray, shape=shape)
+    show_img(crop_rect, '2')
+    show_img(res[0], 'original')
+    show_img(crop_only, 'crop only')
+    show_img(crop_only_bigger, '4')
 
-    crop_img2 = fpu.crop_face_only(imgcv_gray)
-    crop_img3 = fpu.crop_face_for_patch(imgcv_gray)
-    show_img(crop_img, '2')
-    show_img(crop_img2, '3')
-    show_img(crop_img3, '4')
-# try to figure out the size
+    lmx, lmy = get_landmarks(crop_only_bigger, detector, predictor)
+    lmx_select, lmy_select = get_landmark_indexes(all_indexes, lmx, lmy)
+    show_landmarks_sqrs_img(lmx_select, lmy_select, )
 
     #show_landmarks_and_rect(imgcv_gray)
     # root_path = r"D:\chenchuyang\learning\FNN\fera\cohn-kanade-images\cohn-kanade-images\S124\007\\"

@@ -41,11 +41,11 @@ def pickle_2_img_single(data_file):
         for j in range(len(data[i]['labels'])):
             img = data[i]['img'][j]
             img_b = data[i]['img_b'][j]
-            show_img(img)
-            show_img(img_b)
+            #show_img(img)
+            #show_img(img_b)
             print(i, j)
             img_patch = get_patch_1d(img_b, all_indexes, 16, 8)
-
+            print(img_patch)
             label = int(data[i]['labels'][j])
 
             if label == 7:
@@ -63,5 +63,5 @@ def pickle_2_img_single(data_file):
 
 
 if __name__ == "__main__":
-    img, label = pickle_2_img_single("D:/chenchuyang/learning/sparse_coding/patch_mnn/pkl/ckp_2sizeimg.pkl")
+    img, label = pickle_2_img_single("./pkl/ckp_2size_img.pkl")
 
