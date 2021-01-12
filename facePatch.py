@@ -159,8 +159,8 @@ def rect_to_bb(rect):
     return x, y, w, h
 
 # crop by the rectangle and resize
-def crop_and_resize(img):
-    rects = detector(img, 0)
+def crop_and_resize(img, type = 0):
+    rects = detector(img, type)
     x, y, w, h = rect_to_bb(rects[0])
     tlx, tly = x, y
     brx, bry = x + w, y + h
@@ -337,13 +337,17 @@ def pre_show():
 
 if __name__ == "__main__":
     show_img(imgcv_gray, '001')
+    rects = detector(imgcv_gray, 1)
+    shape = predictor(imgcv_gray, rects[0])
+
     crop_img = crop_and_resize(imgcv_gray)
 
-    crop_img2 = fpu.crop_face_only(imgcv_gray)
-    crop_img3 = fpu.crop_face_for_patch(imgcv_gray)
+    crop_img2 = fpu.crop_face_only(imgcv_gray, shape=shape)
+    crop_img3 = fpu.crop_face_for_patch(imgcv_gray, shape=shape, ratio=0.1)
     show_img(crop_img, '2')
     show_img(crop_img2, '3')
-    show_img(crop_img3, '4')
+    show_img(res[0], '4')
+    show_img(crop_img3, '5')
 # try to figure out the size
 
     #show_landmarks_and_rect(imgcv_gray)
