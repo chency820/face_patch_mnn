@@ -345,10 +345,12 @@ if __name__ == "__main__":
     crop_img2 = fpu.crop_face_only(imgcv_gray, shape=shape)
     crop_img3 = fpu.crop_face_for_patch(imgcv_gray, shape=shape, ratio=0.1)
     show_img(crop_img, '2')
+    # the difference of the two is detector 1 and 0
     show_img(crop_img2, '3')
     show_img(res[0], '4')
     show_img(crop_img3, '5')
-# try to figure out the size
+
+    # get the patches of the face
 
     #show_landmarks_and_rect(imgcv_gray)
     # root_path = r"D:\chenchuyang\learning\FNN\fera\cohn-kanade-images\cohn-kanade-images\S124\007\\"

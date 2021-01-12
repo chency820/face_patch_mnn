@@ -63,5 +63,5 @@ def pickle_2_img_single(data_file):
 
 
 if __name__ == "__main__":
-    img, label = pickle_2_img_single("D:/chenchuyang/learning/sparse_coding/patch_mnn/pkl/ckp_2sizeimg.pkl")
+    img, label = pickle_2_img_single("D:/chenchuyang/learning/sparse_coding/patch_mnn/pkl/ckp_face_and_inner.pkl")
 
