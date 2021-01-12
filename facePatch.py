@@ -110,11 +110,11 @@ def get_FacePatch(img, X, Y):
 
 
 # get all image blocks returns 1d tensor
-def get_all_lm_blocks(img, X, Y):
+def get_all_lm_blocks(img, X, Y, block_size=8):
     patches = []
     for x, y in zip(X, Y):
-        patch = get_landmark_block(img, x, y, 8)
-        patch = FFT.dctn(patch)[:8, :8]
+        patch = get_landmark_block(img, x, y, block_size)
+        patch = FFT.dctn(patch)[:block_size, :block_size]
         patches.append(patch)
         patch_1d = np.array(patches).flatten()
     return patch_1d
@@ -140,7 +140,7 @@ def get_landmark_indexes(all_indexes, lmx, lmy):
     return x_lms_list, y_lms_list
 
 
-def get_patch_1d(img, indexes_list, block_size, crop_size):
+def get_patch_1d(img, indexes_list):
     lmx, lmy = get_landmarks(img, detector, predictor)
     x_lms_list, y_lms_list = get_landmark_indexes(indexes_list, lmx, lmy)
     patch_1d_tensor = get_all_lm_blocks(img, x_lms_list, y_lms_list)
@@ -158,6 +158,7 @@ def rect_to_bb(rect):
     # return a tuple of (x, y, w, h)
     return x, y, w, h
 
+
 # crop by the rectangle and resize
 def crop_and_resize(img, type = 0):
     rects = detector(img, type)
@@ -170,8 +171,21 @@ def crop_and_resize(img, type = 0):
     return im_rescale
 
 
-# for image show
-def show_landmarks_sqrs_img(X, Y, img, xl_select, yl_select):
+def show_landmarks_sqrs(X, Y, img, block_size=8):
+    half = block_size//2
+    x_indexes, y_indexes = get_landmark_indexes(all_indexes, X, Y)
+    plt.scatter(X, Y)
+    for (x, y) in zip(x_indexes, y_indexes):
+        print(x,y)
+        cv2.rectangle(img, (x - half, y - half), (x + half, y + half), (255, 0, 0))
+    plt.imshow(img, cmap='gray')
+    plt.show()
+
+
+
+
+# for image show, big square
+def show_landmarks_sqrs_center(X, Y, img, eye_area=12, mouth_area=12):
     plt.scatter(X, Y)
     center_reye_x = int(np.mean(X[42:48]))
     center_reye_y = int(np.mean(Y[42:48]))
@@ -181,8 +195,6 @@ def show_landmarks_sqrs_img(X, Y, img, xl_select, yl_select):
     center_mouth_y = int(np.mean(Y[48:68]))
     # plt.scatter(center_leye_x, center_leye_y)
     # print(center_leye_x, center_leye_y)
-    eye_area = 12
-    mouth_area = 12
     cv2.rectangle(img, (center_leye_x - eye_area, center_leye_y - eye_area), (center_leye_x + eye_area, center_leye_y + eye_area), (255, 0, 0))
     cv2.rectangle(img, (center_reye_x - eye_area, center_reye_y - eye_area), (center_reye_x + eye_area, center_reye_y + eye_area), (255, 0, 0))
     cv2.rectangle(img, (center_mouth_x - mouth_area-12, center_mouth_y - mouth_area), (center_mouth_x + mouth_area-12, center_mouth_y + mouth_area), (255, 0, 0))
@@ -211,8 +223,6 @@ def show_landmarks_and_rect(img):
 
 def show_landmarks_and_img(X, Y, img):
     plt.scatter(X, Y)
-    # cv2.circle(img, (X[36], Y[36]), 16, (255, 0, 0), 1)
-    #cv2.rectangle(img, (X[36]-8, Y[36]-8), (X[36]+8, Y[36]+8), (255, 0, 0))
     plt.imshow(img, cmap='gray')
     plt.title("landmarks")
     plt.show()
@@ -279,32 +289,12 @@ def pre_show():
         patch_tensor = get_patch_1d(imgcv_gray, all_indexes, 16, 8)
         print(patch_tensor.shape)
 
-
-        rects = detector(imgcv_gray, 0)
-        print(rects[0])
-        x, y, w, h = rect_to_bb(rects[0])
-        # Display the image
-        plt.imshow(imgcv_gray, 'gray')
-
-        # Get the current reference
-        ax = plt.gca()
-
-        # Create a Rectangle patch
-        rect = patches.Rectangle((x, y), w, h, linewidth=1, edgecolor='r', facecolor='none')
-
-        # Add the patch to the Axes
-        ax.add_patch(rect)
-        plt.show()
-
         imr = crop_and_resize(imgcv_gray)
         lmx, lmy = get_landmarks(imr, detector, predictor)
 
-
-
         lmx_select, lmy_select = get_landmark_indexes(all_indexes, lmx, lmy)
         show_img(imr)
-        show_landmarks_sqrs_img(lmx, lmy, imr, lmx_select, lmy_select)
-
+        show_landmarks_sqrs_center(lmx, lmy, imr)
 
         im_static = np.abs(FFT.dctn(imr).flatten())
         im_big = np.abs(FFT.dctn(imr).flatten())
@@ -343,14 +333,29 @@ if __name__ == "__main__":
     crop_img = crop_and_resize(imgcv_gray)
 
     crop_img2 = fpu.crop_face_only(imgcv_gray, shape=shape)
-    crop_img3 = fpu.crop_face_for_patch(imgcv_gray, shape=shape, ratio=0.1)
+    crop_img3 = fpu.crop_face_for_patch(imgcv_gray, shape=shape, ratio=0.2)
     show_img(crop_img, '2')
     # the difference of the two is detector 1 and 0
     show_img(crop_img2, '3')
     show_img(res[0], '4')
     show_img(crop_img3, '5')
-
+    lmx, lmy = get_landmarks(crop_img3,detector,predictor)
+    lmx_select, lmy_select = get_landmark_indexes(all_indexes, lmx, lmy)
+    show_landmarks_and_img(lmx, lmy, crop_img3)
+    # show_landmarks_sqrs_center(lmx, lmy, crop_img3)
     # get the patches of the face
+    show_landmarks_sqrs(lmx, lmy, crop_img3, block_size=8)
+
+
+
+
+
+
+
+
+
+
+
 
     #show_landmarks_and_rect(imgcv_gray)
     # root_path = r"D:\chenchuyang\learning\FNN\fera\cohn-kanade-images\cohn-kanade-images\S124\007\\"
