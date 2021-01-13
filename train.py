@@ -2,7 +2,7 @@ from dataset import MyDataset
 import torch
 import torch.nn.functional as F
 from net import Lankmark_net
-from newmnn import MNN, MNN1D
+from mnn import MNN, MNN1D
 from torchvision import transforms
 
 import torch.optim as optim
