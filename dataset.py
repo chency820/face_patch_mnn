@@ -16,7 +16,7 @@ class MyDataset(Dataset):
         self.transform = transform
         self.split = split
         self.fold = fold
-        self.data = "D:/chenchuyang/learning/sparse_coding/patch_mnn/pkl/ckp_2sizeimg.pkl"
+        self.data = "./pkl/ckp_face_and_inner.pkl"
 
         img, label = pickle_2_img_single(self.data)
         train_x = []
@@ -37,9 +37,9 @@ class MyDataset(Dataset):
 
     def __getitem__(self, index):
         if self.split == "Training":
-            img, target = self.train_data[index].reshape(-1,1536), self.train_labels[index]
+            img, target = self.train_data[index], self.train_labels[index]
         elif self.split == "Testing":
-            img, target = self.test_data[index].reshape(-1,1536), self.test_labels[index]
+            img, target = self.test_data[index], self.test_labels[index]
 
         #for3channelsinput
         # img = img[:, :, np.newaxis]
@@ -66,14 +66,13 @@ def test():
         trainset, batch_size=2, shuffle=True, num_workers=0)
     testloader = torch.utils.data.DataLoader(
         testset, batch_size=5, shuffle=False, num_workers=0)
-    print(trainset[0][0].shape)
+    print('img shape', trainset[0][0][0].shape)
+    print('patch shape', trainset[0][0][1].shape)
     print(trainset[0][1])
-    # print(type(trainset[0][0]))
-    # print(type(trainset[0][1]))
-    # for batch_idx, (inputs, targets) in enumerate(trainloader):
-    #    print(batch_idx, len(inputs), len(targets))
-    # plt.imshow(trainset[0][0])
-    # plt.show()
+    for img_tuple, label in trainloader:
+        img= img_tuple[0]
+        patch = img_tuple[1]
+        print()
 
 if __name__ == "__main__":
     test()

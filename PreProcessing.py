@@ -26,7 +26,7 @@ def dense_to_one_hot(labels_dense, num_classes):
 
 def pickle_2_img_single(data_file):
     '''load data from pkl'''
-
+    print("PreProcessing begins ==========================")
     if not os.path.exists(data_file):
         print('file {0} not exists'.format(data_file))
         exit()
@@ -41,11 +41,11 @@ def pickle_2_img_single(data_file):
         for j in range(len(data[i]['labels'])):
             img = data[i]['img'][j]
             img_b = data[i]['img_b'][j]
-            show_img(img)
-            show_img(img_b)
-            print(i, j)
-            img_patch = get_patch_1d(img_b, all_indexes, 16, 8)
-
+            # show_img(img)
+            # show_img(img_b)
+            #print(i, j)
+            img_patch = get_patch_1d(img_b, all_indexes, 8, 8)
+            #print(img_patch.shape)
             label = int(data[i]['labels'][j])
 
             if label == 7:
@@ -53,12 +53,12 @@ def pickle_2_img_single(data_file):
 
             #label = dense_to_one_hot(label, 6)
 
-            x1.append((img, img_b))
+            x1.append((img, img_patch))
             yl.append(label)
 
         total_x1.append(x1)
         total_y.append(yl)
-
+    print("PreProcessing ends ==========================")
     return total_x1, total_y
 
 

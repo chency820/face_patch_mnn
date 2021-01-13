@@ -110,11 +110,11 @@ def get_FacePatch(img, X, Y):
 
 
 # get all image blocks returns 1d tensor
-def get_all_lm_blocks(img, X, Y, block_size=8):
+def get_all_lm_blocks(img, X, Y, block_size=8, crop_size=8):
     patches = []
     for x, y in zip(X, Y):
         patch = get_landmark_block(img, x, y, block_size)
-        patch = FFT.dctn(patch)[:block_size, :block_size]
+        patch = FFT.dctn(patch)[:crop_size, :crop_size]
         patches.append(patch)
         patch_1d = np.array(patches).flatten()
     return patch_1d
@@ -126,7 +126,7 @@ def get_landmark_block(img, x, y, block_size=8):
     tlx, tly = int(x - half), int(y - half)
     brx, bry = int(x + half), int(y + half)
     patch = np.zeros((block_size, block_size), dtype="uint8")
-    print(block_size, tly, bry, tlx, brx)
+    #print(block_size, tly, bry, tlx, brx)
     patch[0:block_size, 0:block_size] = img[tly:bry, tlx:brx]
     return patch
 
@@ -140,10 +140,10 @@ def get_landmark_indexes(all_indexes, lmx, lmy):
     return x_lms_list, y_lms_list
 
 
-def get_patch_1d(img, indexes_list):
+def get_patch_1d(img, indexes_list, block_size, crop_size):
     lmx, lmy = get_landmarks(img, detector, predictor)
     x_lms_list, y_lms_list = get_landmark_indexes(indexes_list, lmx, lmy)
-    patch_1d_tensor = get_all_lm_blocks(img, x_lms_list, y_lms_list)
+    patch_1d_tensor = get_all_lm_blocks(img, x_lms_list, y_lms_list, block_size, crop_size)
     return patch_1d_tensor
 
 
