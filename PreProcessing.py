@@ -40,6 +40,7 @@ def pickle_2_img_single(data_file):
         print(len(data[i]['img']))
         for j in range(len(data[i]['labels'])):
             img = data[i]['img'][j]
+            img = FFT.dctn(img)[:32, :32]
             img_b = data[i]['img_b'][j]
             # show_img(img)
             # show_img(img_b)

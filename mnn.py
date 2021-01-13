@@ -49,12 +49,12 @@ class Mult1D(nn.Module):
     def forward(self, input):
         feature_maps = []
         for i in range(self.times):
-            print(self.weights[i].requires_grad)
             temp = input * self.weights[i] + self.bias[i]
-            print(input.shape, self.weights[i].shape, self.bias[i].shape, temp.shape)
+            # print('tensor_shape', input.shape, self.weights[i].shape, self.bias[i].shape, temp.shape)
             feature_maps.append(temp)
         res = self.to_general(feature_maps)
         return res
+
     def to_general(self, feature_maps):
         result = feature_maps[0]
         for i in range(1, len(feature_maps)):
@@ -91,6 +91,7 @@ class Mult(nn.Module):
             feature_maps.append(temp)
         res = self.to_general(feature_maps)
         return res
+
     def to_general(self, feature_maps):
         result = feature_maps[0]
         for i in range(1, len(feature_maps)):

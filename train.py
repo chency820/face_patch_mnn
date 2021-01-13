@@ -43,12 +43,12 @@ total_epoch = 200
 
 transform = transforms.Compose([transforms.ToTensor()])
 
-trainset = MyDataset(split='Training', fold=opt.fold, transform=transform)
-testset = MyDataset(split='Testing', fold=opt.fold, transform=transform)
-trainloader = torch.utils.data.DataLoader(
-    trainset, batch_size=75, shuffle=True, num_workers=0)
-testloader = torch.utils.data.DataLoader(
-    testset, batch_size=1, shuffle=False, num_workers=0)
+# trainset = MyDataset(split='Training', fold=opt.fold, transform=transform)
+# testset = MyDataset(split='Testing', fold=opt.fold, transform=transform)
+# trainloader = torch.utils.data.DataLoader(
+#     trainset, batch_size=75, shuffle=True, num_workers=0)
+# testloader = torch.utils.data.DataLoader(
+#     testset, batch_size=1, shuffle=False, num_workers=0)
 
 model_index = 2
 
@@ -74,7 +74,7 @@ logging.basicConfig(level=logging.INFO,
                     format="%(asctime)-15s %(levelname)-8s  %(message)s")
 
 
-def train(epoch):
+def train(train_loader, epoch):
     print('\nEpoch: %d' % epoch)
     global Train_acc
     model.train()
@@ -82,15 +82,13 @@ def train(epoch):
     correct = 0
     total = 0
 
-    for batch_idx, (inputs, targets) in enumerate(trainloader):
-        inputs = inputs.type(torch.FloatTensor)
-        # targets = torch.tensor(targets, dtype=torch.long)
+    for batch_idx, (inputs, targets) in enumerate(train_loader):
+        inputs = inputs[1].type(torch.FloatTensor)
+        #inputs = inputs[0]
         if use_cuda:
             inputs, targets = inputs.cuda(), targets.cuda()
-        inputs, targets = Variable(inputs), Variable(targets)
-        print("insize: ", inputs.size())
+        # inputs, targets = Variable(inputs), Variable(targets)
         outputs = model(inputs)
-        print("outsize: ", outputs.size())
         loss = criterion(outputs, targets)
         optimizer.zero_grad()
         loss.backward()
@@ -107,7 +105,7 @@ def train(epoch):
     train_loss_list.append(train_loss)
 
 
-def test(epoch):
+def test(test_loader, epoch):
     global Test_acc
     global best_Test_acc
     global best_epoch
@@ -116,9 +114,8 @@ def test(epoch):
     correct = 0
     total = 0
     with torch.no_grad():
-        for batch_idx, (inputs, targets) in enumerate(testloader):
-            inputs = inputs.type(torch.FloatTensor)
-            # targets = torch.tensor(targets, dtype=torch.long)
+        for batch_idx, (inputs, targets) in enumerate(test_loader):
+            inputs = inputs[1].type(torch.FloatTensor)
             if use_cuda:
                 inputs, targets = inputs.cuda(), targets.cuda()
             outputs = model(inputs)
@@ -181,5 +178,18 @@ def run():
                   test_acc_list, test_loss_list, total_epoch, 2)
 
 
+def run_ten_fold():
+    acc = list()
+    for i in range(10):
+        trainset = MyDataset(split='Training', fold=i, transform=transform)
+        testset = MyDataset(split='Testing', fold=i, transform=transform)
+        trainloader = torch.utils.data.DataLoader(
+            trainset, batch_size=75, shuffle=True, num_workers=0)
+        testloader = torch.utils.data.DataLoader(
+            testset, batch_size=1, shuffle=False, num_workers=0)
+        for epoch in range(start_epoch, total_epoch):
+            train(trainloader, epoch)
+            test(testloader, epoch)
+
 if __name__ == '__main__':
-    run()
+    run_ten_fold()

@@ -1,5 +1,7 @@
 import os
 
+
+
 for i in range(10):
     print('fold %d' % (i))
     cmd = "python train.py --fold %d" % (i)

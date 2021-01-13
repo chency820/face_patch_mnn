@@ -11,6 +11,8 @@ from PreProcessing import dense_to_one_hot, pickle_2_img_single
 from facePatch import get_patch_1d
 
 
+use_cuda = torch.cuda.is_available()
+
 class MyDataset(Dataset):
     def __init__(self, split="Training", fold=0, transform=None):
         self.transform = transform
@@ -41,7 +43,7 @@ class MyDataset(Dataset):
         elif self.split == "Testing":
             img, target = self.test_data[index], self.test_labels[index]
 
-        #for3channelsinput
+        # for 3 channels input
         # img = img[:, :, np.newaxis]
         # img = np.concatenate((img, img, img), axis=2)
 
@@ -69,10 +71,11 @@ def test():
     print('img shape', trainset[0][0][0].shape)
     print('patch shape', trainset[0][0][1].shape)
     print(trainset[0][1])
-    for img_tuple, label in trainloader:
-        img= img_tuple[0]
-        patch = img_tuple[1]
-        print()
+    for batch_idx, (inputs, targets) in enumerate(trainloader):
+        inputs = inputs[1].type(torch.FloatTensor)
+        if use_cuda:
+            inputs, targets = inputs.cuda(), targets.cuda()
+        # inputs, targets = Variable(inputs), Variable(targets)
 
 if __name__ == "__main__":
     test()
